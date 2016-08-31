@@ -592,7 +592,10 @@ config TOUCHSCREEN_TI_AM335X_TSC
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called ti_am335x_tsc.
-
+config TOUCHSCREEN_HIMAX
+    tristate "Himax 8526A based touchscreens"
+    depends on I2C
+    default n
 config TOUCHSCREEN_UCB1400
 	tristate "Philips UCB1400 touchscreen"
 	depends on AC97_BUS
