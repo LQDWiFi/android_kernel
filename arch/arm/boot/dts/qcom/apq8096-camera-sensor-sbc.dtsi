@@ -33,8 +33,8 @@
 		reg = <0x1>;
 		compatible = "qcom,actuator";
 		qcom,cci-master = <1>;
-		cam_vaf-supply = <&pm8994_l23>;
-		/* cam_vaf-supply = <&vph_pwr_vreg>; */
+		//cam_vaf-supply = <&pm8994_l23>;
+		cam_vaf-supply = <&vph_pwr_vreg>;
 		qcom,cam-vreg-name = "cam_vaf";
 		qcom,cam-vreg-min-voltage = <2800000>;
 		qcom,cam-vreg-max-voltage = <2800000>;
@@ -160,7 +160,7 @@
 		qcom,csid-sd-index = <2>;
 		qcom,mount-angle = <0>;
 		//qcom,eeprom-src = <&eeprom1>;
-		//qcom,actuator-src = <&actuator1>;
+		qcom,actuator-src = <&actuator1>;
 		cam_vdig-supply = <&vph_pwr_vreg>;
 		/* Cameras powered by PMIC: */
 		cam_vio-supply = <&pm8994_lvs1>;
@@ -168,10 +168,10 @@
 		/* Self-powered cameras: */
 		/* cam_vio-supply = <&vph_pwr_vreg>; */
 		/* cam_vana-supply = <&vph_pwr_vreg>; */
-		qcom,cam-vreg-name = "cam_vdig", "cam_vio", "cam_vana";
-		qcom,cam-vreg-min-voltage = <1300000 0 2500000>;
-		qcom,cam-vreg-max-voltage = <1300000 0 2500000>;
-		qcom,cam-vreg-op-mode = <105000 0 80000>;
+		qcom,cam-vreg-name = "cam_vdig", "cam_vio", "cam_vana", "cam_vaf";
+		qcom,cam-vreg-min-voltage = <1300000 0 2500000 2000000>;
+		qcom,cam-vreg-max-voltage = <1300000 0 2500000 2000000 >;
+		qcom,cam-vreg-op-mode = <105000 0 80000 100000>;
 		qcom,gpio-no-mux = <0>;
 		pinctrl-names = "cam_default", "cam_suspend";
 		pinctrl-0 = <&cam_sensor_mclk2_active &cam_csi2_sensor_active>;
