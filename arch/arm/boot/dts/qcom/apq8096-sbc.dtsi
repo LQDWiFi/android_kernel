@@ -45,6 +45,10 @@
 	pinctrl-0 = <&uart_console_active>;
 };
 
+&uart2 {
+	status = "ok";
+};
+
 &sdhc_2 {
 	vdd-supply = <&pm8994_l21>;
 	qcom,vdd-voltage-level = <2950000 2950000>;
@@ -806,7 +810,7 @@
 };
 
 &spi_11 {
-	status = "ok";
+	status = "disabled";
 };
 
 &slim_msm {
