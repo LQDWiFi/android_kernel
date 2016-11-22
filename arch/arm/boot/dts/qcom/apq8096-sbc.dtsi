@@ -359,6 +359,12 @@
 		};
 	};
 
+	rpm-regulator-ldoa19 {
+		pm8994_l19: regulator-l19 {
+		status = "okay";
+		regulator-always-on;
+		};
+        };
 	rpm-regulator-ldoa22 {
 		pm8994_l22: regulator-l22 {
 			regulator-min-microvolt = <3000000>;
