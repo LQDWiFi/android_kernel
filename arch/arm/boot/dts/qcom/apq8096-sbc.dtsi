@@ -399,8 +399,14 @@
 	status = "ok";
 	qcom,charging-disabled;
 	vbus_dwc3-supply = <&vph_pwr_vreg>;
-	qcom,usbin-vadc = <&pmi8994_vadc>;
-	vdda33-supply = <&pm8994_l24>;
+	qcom,disable-host-mode-pm;
+	interrupts-extended = <&intc 0 352 0>, <&intc 0 140 0>, <&spmi_bus 0x2 0xc3 0x0 0x0>;
+	interrupt-names = "hs_phy_irq", "pwr_event_irq", "pmic_id_irq";
+	dwc3@7600000{
+		interrupts = <0 138 0>, <0 142 0>;
+		interrupt-names = "irq", "otg_irq";
+	};
+
 };
 
 &usb_nop_phy {
@@ -453,6 +459,15 @@
 		qcom,mode = <1>;	/* DIGITAL OUT */
 		qcom,pull = <5>;	/* No Pull */
 		qcom,vin-sel = <2>;	/* 1.8 */
+		qcom,src-sel = <0>;	/* CONSTANT */
+		qcom,master-en = <1>;	/* ENABLE GPIO */
+		status = "okay";
+	};
+
+	gpio@c300 { /* GPIO 4 - USB_ID otg */
+		qcom,mode = <0>;	/* DIGITAL INPUT */
+		qcom,pull = <1>;	/* Pull up */
+		qcom,vin-sel = <1>;	/* 1.8 */
 		qcom,src-sel = <0>;	/* CONSTANT */
 		qcom,master-en = <1>;	/* ENABLE GPIO */
 		status = "okay";
