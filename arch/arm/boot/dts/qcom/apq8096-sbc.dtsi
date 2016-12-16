@@ -16,6 +16,7 @@
 / {
 	bluetooth: bt_qca6174 {
 		compatible = "qca,qca6174";
+		qcom,bt-indication-enabled;
 		qca,bt-reset-gpio = <&pm8994_gpios 19 0>; /* BT_EN */
 		qca,bt-vdd-core-supply = <&vph_pwr_vreg>;
 		qca,bt-vdd-pa-supply = <&vph_pwr_vreg>;
@@ -497,6 +498,7 @@
 
 &soc {
 	qcom,cnss {
+		qcom,wlan-indication-enabled;
 		wlan-bootstrap-gpio = <&tlmm 46 0>;
 		wlan-en-gpio = <&pm8994_gpios 8 0>;
 		vdd-wlan-io-supply = <&pm8994_s4>;
@@ -656,7 +658,7 @@
 				qcom,mode-ctrl = <0x60>;
 				qcom,mode = "manual";
 				linux,default-trigger =
-					"wifi-indication-led";
+					"wlan-indication-led";
 			};
 		};
 

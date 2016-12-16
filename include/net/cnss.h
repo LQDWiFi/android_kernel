@@ -111,7 +111,7 @@ enum cnss_runtime_request {
 	CNSS_PM_REQUEST_RESUME,
 	CNSS_PM_RUNTIME_PUT_AUTO,
 };
-
+extern void cnss_en_wifi_led_trigger(void);
 extern int cnss_get_fw_image(struct image_desc_info *image_desc_info);
 extern void cnss_runtime_init(struct device *dev, int auto_delay);
 extern void cnss_runtime_exit(struct device *dev);
