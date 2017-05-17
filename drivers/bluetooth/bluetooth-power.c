@@ -27,7 +27,8 @@
 #include <linux/slab.h>
 #include <linux/regulator/consumer.h>
 #include <net/cnss.h>
-
+#include <linux/leds.h>
+DEFINE_LED_TRIGGER(bt_indication_led);
 #define BT_PWR_DBG(fmt, arg...)  pr_debug("%s: " fmt "\n" , __func__ , ## arg)
 #define BT_PWR_INFO(fmt, arg...) pr_info("%s: " fmt "\n" , __func__ , ## arg)
 #define BT_PWR_ERR(fmt, arg...)  pr_err("%s: " fmt "\n" , __func__ , ## arg)
@@ -42,6 +43,11 @@ static struct of_device_id bt_power_match_table[] = {
 static struct bluetooth_power_platform_data *bt_power_pdata;
 static struct platform_device *btpdev;
 static bool previous;
+
+void bt_en_led_trigger(void)
+{
+	led_trigger_register_simple("bt-indication-led", &bt_indication_led);
+}
 
 static int bt_vreg_init(struct bt_power_vreg_data *vreg)
 {
@@ -93,6 +99,9 @@ static int bt_vreg_enable(struct bt_power_vreg_data *vreg)
 		}
 		vreg->is_enabled = true;
 	}
+
+	if(bt_indication_led)
+      led_trigger_event(bt_indication_led, LED_FULL);
 out:
 	return rc;
 }
@@ -128,6 +137,8 @@ static int bt_vreg_disable(struct bt_power_vreg_data *vreg)
 			}
 		}
 	}
+	if(bt_indication_led)
+      led_trigger_event(bt_indication_led, LED_OFF);
 out:
 	return rc;
 }
@@ -410,6 +421,8 @@ static int bt_power_populate_dt_pinfo(struct platform_device *pdev)
 		return -ENOMEM;
 
 	if (pdev->dev.of_node) {
+		if(of_property_read_bool(pdev->dev.of_node,"qcom,bt-indication-enabled"))
+			bt_en_led_trigger();
 		bt_power_pdata->bt_gpio_sys_rst =
 			of_get_named_gpio(pdev->dev.of_node,
 						"qca,bt-reset-gpio", 0);

@@ -1427,6 +1427,7 @@ static const struct msm_function msm8996_functions[] = {
 	FUNCTION(dac_calib0),
 	FUNCTION(blsp_spi8),
 	FUNCTION(blsp_uart8),
+	FUNCTION(blsp_uart12),
 	FUNCTION(blsp_uim8),
 	FUNCTION(qdss_cti_trig_out_b),
 	FUNCTION(bimc_dte0),

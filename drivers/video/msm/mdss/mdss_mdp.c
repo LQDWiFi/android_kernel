@@ -1543,6 +1543,7 @@ static int mdss_mdp_get_pan_cfg(struct mdss_panel_cfg *pan_cfg)
 	char *t = NULL;
 	char pan_intf_str[MDSS_MAX_PANEL_LEN];
 	int rc, i, panel_len;
+    char *p = NULL;
 	char pan_name[MDSS_MAX_PANEL_LEN] = {'\0'};
 
 	if (!pan_cfg)
@@ -1554,7 +1555,18 @@ static int mdss_mdp_get_pan_cfg(struct mdss_panel_cfg *pan_cfg)
 		pan_cfg->pan_intf = MDSS_PANEL_INTF_INVALID;
 		return -EINVAL;
 	} else if (mdss_mdp_panel[0] == '1') {
-		pan_cfg->lk_cfg = true;
+        strlcpy(pan_name, &mdss_mdp_panel[2], MDSS_MAX_PANEL_LEN);
+        pr_err("pan_name=[%s] \n", pan_name);
+        p = strnstr(pan_name, "hdmi", MDSS_MAX_PANEL_LEN);
+        if(p) {
+            pr_err("skip dt entries and configuring [%s] \n", pan_name);
+            pan_cfg->lk_cfg = true;
+        } else {
+            pr_err("panel selection from dt \n");
+            pan_cfg->lk_cfg = true;
+            pan_cfg->pan_intf = MDSS_PANEL_INTF_INVALID;
+            return -EINVAL;
+        }
 	} else {
 		/* read from dt */
 		pan_cfg->lk_cfg = true;

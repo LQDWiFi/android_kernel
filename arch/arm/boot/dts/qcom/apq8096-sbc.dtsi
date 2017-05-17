@@ -16,6 +16,7 @@
 / {
 	bluetooth: bt_qca6174 {
 		compatible = "qca,qca6174";
+		qcom,bt-indication-enabled;
 		qca,bt-reset-gpio = <&pm8994_gpios 19 0>; /* BT_EN */
 		qca,bt-vdd-core-supply = <&vph_pwr_vreg>;
 		qca,bt-vdd-pa-supply = <&vph_pwr_vreg>;
@@ -43,6 +44,10 @@
 	status = "ok";
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart_console_active>;
+};
+
+&uart2 {
+	status = "ok";
 };
 
 &sdhc_2 {
@@ -305,50 +310,41 @@
 
 #include "msm8996-mdss-panels.dtsi"
 
-&dsi_dual_sharp_video {
+&dsi_hx8379a_fwvga_truly_vid {
 	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_pwm";
 	qcom,mdss-dsi-bl-min-level = <1>;
-	qcom,mdss-dsi-bl-max-level = <4095>;
+	qcom,mdss-dsi-bl-max-level = <255>;
 	qcom,mdss-dsi-bl-pmic-pwm-frequency = <50>;
-	qcom,mdss-dsi-bl-pmic-bank-select = <0>;
+	qcom,mdss-dsi-bl-pmic-bank-select = <2>;
 	qcom,mdss-dsi-pwm-gpio = <&pm8994_gpios 5 0>;
 	qcom,panel-supply-entries = <&dsi_panel_pwr_supply_no_labibb>;
 };
 
 &mdss_mdp {
-	qcom,mdss-pref-prim-intf = "hdmi";
+	qcom,mdss-pref-prim-intf = "dsi";
 };
 
 &mdss_dsi {
-	hw-config = "split_dsi";
+	hw-config = "single_dsi";
 };
 
 &mdss_dsi0 {
-	qcom,dsi-pref-prim-pan = <&dsi_dual_sharp_video>;
+	qcom,dsi-pref-prim-pan = <&dsi_hx8379a_fwvga_truly_vid>;
 	pinctrl-names = "mdss_default", "mdss_sleep";
-	pinctrl-0 = <&mdss_dsi_active &mdss_te_active>;
-	pinctrl-1 = <&mdss_dsi_suspend &mdss_te_suspend>;
+	pinctrl-0 = <&mdss_dsi_active &mdss_te_active &mdss_disp_bkl_active>;
+	pinctrl-1 = <&mdss_dsi_suspend &mdss_te_suspend &mdss_disp_bkl_suspend>;
 	qcom,platform-te-gpio = <&tlmm 10 0>;
 	qcom,platform-reset-gpio = <&tlmm 8 0>;
-	qcom,platform-bklight-en-gpio = <&pm8994_gpios 6 0>;
+	qcom,platform-bklight-en-gpio = <&tlmm 135 0>;
 };
 
 &mdss_dsi1 {
-	qcom,dsi-pref-prim-pan = <&dsi_dual_sharp_video>;
-	pinctrl-names = "mdss_default", "mdss_sleep";
-	pinctrl-0 = <&mdss_dsi_active &mdss_te_active>;
-	pinctrl-1 = <&mdss_dsi_suspend &mdss_te_suspend>;
-	qcom,platform-te-gpio = <&tlmm 10 0>;
-	qcom,platform-reset-gpio = <&tlmm 8 0>;
-	qcom,platform-bklight-en-gpio = <&pm8994_gpios 6 0>;
+	status = "disabled";
 };
 
 &labibb {
-	status = "disabled";
-};
-
-&ibb_regulator {
-	status = "disabled";
+	status = "ok";
+	qpnp,qpnp-labibb-mode = "lcd";
 };
 
 &rpm_bus {
@@ -359,6 +355,12 @@
 		};
 	};
 
+	rpm-regulator-ldoa19 {
+		pm8994_l19: regulator-l19 {
+		status = "okay";
+		regulator-always-on;
+		};
+        };
 	rpm-regulator-ldoa22 {
 		pm8994_l22: regulator-l22 {
 			regulator-min-microvolt = <3000000>;
@@ -398,8 +400,14 @@
 	status = "ok";
 	qcom,charging-disabled;
 	vbus_dwc3-supply = <&vph_pwr_vreg>;
-	qcom,usbin-vadc = <&pmi8994_vadc>;
-	vdda33-supply = <&pm8994_l24>;
+	qcom,disable-host-mode-pm;
+	interrupts-extended = <&intc 0 352 0>, <&intc 0 140 0>, <&spmi_bus 0x2 0xc3 0x0 0x0>;
+	interrupt-names = "hs_phy_irq", "pwr_event_irq", "pmic_id_irq";
+	dwc3@7600000{
+		interrupts = <0 138 0>, <0 142 0>;
+		interrupt-names = "irq", "otg_irq";
+	};
+
 };
 
 &usb_nop_phy {
@@ -457,6 +465,15 @@
 		status = "okay";
 	};
 
+	gpio@c300 { /* GPIO 4 - USB_ID otg */
+		qcom,mode = <0>;	/* DIGITAL INPUT */
+		qcom,pull = <1>;	/* Pull up */
+		qcom,vin-sel = <1>;	/* 1.8 */
+		qcom,src-sel = <0>;	/* CONSTANT */
+		qcom,master-en = <1>;	/* ENABLE GPIO */
+		status = "okay";
+	};
+
 	gpio@c500 {	/* GPIO 6 USB2_VBUS_DET*/
 		qcom,mode = <0>;	/* DIGITAL INPUT */
 		qcom,pull = <5>;	/* No Pull */
@@ -481,6 +498,7 @@
 
 &soc {
 	qcom,cnss {
+		qcom,wlan-indication-enabled;
 		wlan-bootstrap-gpio = <&tlmm 46 0>;
 		wlan-en-gpio = <&pm8994_gpios 8 0>;
 		vdd-wlan-io-supply = <&pm8994_s4>;
@@ -490,29 +508,26 @@
 		/delete-property/ vdd-wlan-core-supply;
 	};
 
-	i2c@75b6000 {
-		synaptics@20 {
-			compatible = "synaptics,dsx";
-			reg = <0x20>;
-			interrupt-parent = <&tlmm>;
-			interrupts = <125 0x2008>;
-			vdd-supply = <&vph_pwr_vreg>;
-			avdd-supply = <&vph_pwr_vreg>;
-			pinctrl-names = "pmx_ts_active", "pmx_ts_suspend";
-			pinctrl-0 = <&ts_active_sbc>;
-			pinctrl-1 = <&ts_suspend_sbc>;
-			synaptics,display-coords = <0 0 1599 2559>;
-			synaptics,panel-coords = <0 0 1599 2703>;
-			synaptics,reset-gpio = <&tlmm 29 0x00>;
-			synaptics,irq-gpio = <&tlmm 125 0x2008>;
-			synaptics,disable-gpios;
-			synaptics,fw-name = "PR1702898-s3528t_00350002.img";
-			/* Underlying clocks used by secure touch */
-			clock-names = "iface_clk", "core_clk";
-			clocks = <&clock_gcc clk_gcc_blsp2_ahb_clk>,
-				 <&clock_gcc clk_gcc_blsp2_qup2_i2c_apps_clk>;
-		};
-	};
+	i2c@75ba000 {
+        himax8526a@4a {
+             compatible = "msm,himax";
+             reg = <0x4a>;
+             interrupt-parent = <&tlmm>;
+             interrupts = <125 0x2008>;
+             msm,abs_x_min = <0>;
+             msm,abs_x_max = <480>;
+             msm,abs_y_min = <0>;
+             msm,abs_y_max = <800>;
+             msm,abs_pressure_min = <0>;
+             msm,abs_pressure_max = <31>;
+             msm,abs_width_min = <0>;
+             msm,abs_width_max = <31>;
+             msm,inv_x = <1>;
+             msm,inv_y = <1>;
+             msm,reset-gpio = <&tlmm 89 0x00>;
+
+        };
+    };
 
 	gpio_keys {
 		compatible = "gpio-keys";
@@ -643,7 +658,7 @@
 				qcom,mode-ctrl = <0x60>;
 				qcom,mode = "manual";
 				linux,default-trigger =
-					"wifi-indication-led";
+					"wlan-indication-led";
 			};
 		};
 
@@ -808,11 +823,11 @@
 };
 
 &i2c_12 {
-	status = "disabled";
+	status = "ok";
 };
 
 &spi_11 {
-	status = "ok";
+	status = "disabled";
 };
 
 &slim_msm {

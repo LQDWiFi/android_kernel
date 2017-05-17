@@ -51,7 +51,8 @@
 #include <net/cfg80211.h>
 #include <soc/qcom/memory_dump.h>
 #include <net/cnss.h>
-
+#include <linux/leds.h>
+DEFINE_LED_TRIGGER(wlan_indication_led);
 #ifdef CONFIG_WCNSS_MEM_PRE_ALLOC
 #include <net/cnss_prealloc.h>
 #endif
@@ -298,7 +299,10 @@ static unsigned int pcie_link_down_panic;
 module_param(pcie_link_down_panic, uint, S_IRUSR | S_IWUSR);
 MODULE_PARM_DESC(pcie_link_down_panic,
 		"Trigger kernel panic when PCIe link down is detected");
-
+void cnss_en_wifi_led_trigger(void)
+{
+	led_trigger_register_simple("wlan-indication-led", &wlan_indication_led);
+}
 static int cnss_wlan_vreg_on(struct cnss_wlan_vreg_info *vreg_info)
 {
 	int ret;
@@ -2071,6 +2075,9 @@ again:
 	if (penv->notify_modem_status && wdrv->modem_status)
 		wdrv->modem_status(pdev, penv->modem_current_status);
 
+	if(wlan_indication_led)
+      led_trigger_event(wlan_indication_led, LED_FULL);
+
 	return ret;
 
 err_wlan_probe:
@@ -2160,6 +2167,10 @@ void cnss_wlan_unregister_driver(struct cnss_wlan_driver *driver)
 			return;
 		}
 	}
+
+	if(wlan_indication_led)
+      led_trigger_event(wlan_indication_led, LED_OFF);
+
 	penv->pcie_link_state = PCIE_LINK_DOWN;
 	penv->driver_status = CNSS_UNINITIALIZED;
 	penv->monitor_wake_intr = false;
@@ -2615,6 +2626,9 @@ static int cnss_probe(struct platform_device *pdev)
 		of_property_read_bool(dev->of_node,
 				      "qcom,notify-modem-status");
 
+	if(of_property_read_bool(dev->of_node,"qcom,wlan-indication-enabled"))
+			cnss_en_wifi_led_trigger();
+
 	if (penv->notify_modem_status) {
 		ret = of_property_read_string_index(dev->of_node, "esoc-names",
 						    0, &client_desc);
@@ -2837,6 +2851,7 @@ static int cnss_remove(struct platform_device *pdev)
 
 	return 0;
 }
+
 
 static const struct of_device_id cnss_dt_match[] = {
 	{.compatible = "qcom,cnss"},
