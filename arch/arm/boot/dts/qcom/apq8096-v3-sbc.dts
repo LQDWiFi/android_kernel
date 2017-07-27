@@ -27,6 +27,9 @@
 #include "msm-pmi8996.dtsi"
 #include "apq8096-sbc.dtsi"
 
+/* Include Pebble Expansion Board setup last so it can override anything */
+#include "ifc6640-pebble-expansion-board.dtsi"
+
 / {
 	model = "Qualcomm Technologies, Inc. APQ8096v3";
 	compatible = "qcom,apq8096-sbc", "qcom,msm8996",
