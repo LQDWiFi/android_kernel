@@ -117,3 +117,32 @@
        };
     };
 };
+
+&soc {
+    /*
+        Documentation/devicetree/bindings/leds/leds-gpio.txt
+    */
+    gpio_leds {
+        compatible = "gpio-leds";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pex_pinctrl_emer_led_r_ctl &pex_pinctrl_emer_led_g_ctl>;
+
+        /*
+            /sys/devices/soc/soc:gpio_leds/leds/emergency_led_red/brightness
+        */
+        emergency_led_red {
+            gpios = <&tlmm 50 1>;
+            label = "emergency_led_red";
+            linux,default-trigger = "none";
+        };
+
+        /*
+            /sys/devices/soc/soc:gpio_leds/leds/emergency_led_green/brightness
+        */
+        emergency_led_green {
+            gpios = <&tlmm 51 1>;
+            label = "emergency_led_green";
+            linux,default-trigger = "none";
+        };
+    };
+};
