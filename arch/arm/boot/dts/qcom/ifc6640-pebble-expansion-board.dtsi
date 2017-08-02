@@ -145,4 +145,29 @@
             linux,default-trigger = "none";
         };
     };
+
+    /*
+        Documentation/devicetree/bindings/gpio/gpio_keys.txt
+        This extends the node from apq8096-sbc.dtsi
+        (There can only be one instance of the gpio-keys node!)
+    */
+    gpio_keys {
+        compatible = "gpio-keys";
+        input-name = "gpio-keys";
+        pinctrl-names = "tlmm_gpio_key_active", "tlmm_gpio_key_suspend";
+        pinctrl-0 = <&pex_pinctrl_emergency_n>;
+        pinctrl-1 = <&pex_pinctrl_emergency_n>;
+
+        /*
+            Generate a "PROG1" key event on the "gpio-keys" input device
+        */
+        emergency_button { 
+            label = "emergency_button";
+            gpios = <&tlmm 49 1>;
+            linux,input-type = <1>; // EV_KEY
+            linux,code = <148>; // KEY_PROG1
+            gpio-key,wakeup; // Wakeup the device if it's sleeping
+            debounce-interval = <15>;
+        };
+    };
 };
