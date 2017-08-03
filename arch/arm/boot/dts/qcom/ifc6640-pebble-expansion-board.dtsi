@@ -1,0 +1,173 @@
+/*
+    Sensity Pebble Expansion Board v1 for IFC6640 boards
+
+    Reference:
+    https://lqdwifi.atlassian.net/wiki/spaces/BBV5/pages/3253792/Design+information
+*/
+
+/*
+    GPIO MAP
+    --------
+    GPIO0 : BLSP1_UART_TX TICKER_1_TXD
+    GPIO1 : BLSP1_UART_RX TICKER_1_RXD
+    GPIO2 : OUTPUT        USB_HUB_RESET_N
+    GPIO3 : OUTPUT        ETH_RESET_N
+    GPIO25: OUTPUT        EC25_WAKEUP_IN
+    GPIO26: OUTPUT        EC25_DISABLE_N
+    GPIO27: OUTPUT        EC25_RESET
+    GPIO28: OUTPUT        EC25_PWRKEY
+    GPIO45: BLSP3_UART_TX TICKER_2_TXD
+    GPIO46: BLSP3_UART_RX TICKER_2_RXD
+    GPIO48: OUTPUT        FT232R_RESET_N
+    GPIO49: INPUT         EMERGENCY_N    (Button)
+    GPIO50: OUTPUT        EMER_LED_R_CTL (LED)
+    GPIO51: OUTPUT        EMER_LED_G_CTL (LED)
+    GPIO52: OUTPUT        EC25_AP_READY
+    GPIO81: BLSP5_UART_TX BATTERY_TXD
+    GPIO82: BLSP5_UART_RX BATTERY_RXD
+*/
+
+/*
+    Append Pebble Expansion Board GPIO setup to the "Top Level Mode Multiplexer" node from msm8996-pinctrl.dtsi
+
+    These don't actually do anything unless they're activated from something else
+
+    Reference documentation: Documentation/devicetree/bindings/pinctrl/qcom,msm8996-pinctrl.txt
+    "pins"
+        A list of pins that can be set to the same function
+
+    "function"
+        This is the alternative function of the pin.
+        These are listed in the array msm8996_groups from drivers/pinctrl/qcom/pinctrl-msm8996.c
+        Each line contains the pin number, and then the alternative functions available for that pin
+
+    "drive-strength"
+        Drive strength for the pin, in milliamps.
+
+    "bias-disable", "bias-pull-down", "bias-pull-up"
+        Should pin have a pull-up resistor or pull-down resistor?
+
+    "output-high", "output-low"
+        Default output state of pin
+*/
+&tlmm {
+    pebble_expansion_board: pebble_expansion_board {
+        /* UARTs */
+        pex_pinctrl_ticker1_uart: pex_ticker1_uart {
+            mux    { pins = "gpio0", "gpio1"; function = "blsp_uart1"; };
+            config { pins = "gpio0", "gpio1"; drive-strength = <2>; bias-disable; };
+        };
+        pex_pinctrl_ticker2_uart: pex_ticker2_uart {
+            mux    { pins = "gpio45", "gpio46"; function = "blsp_uart3"; };
+            config { pins = "gpio45", "gpio46"; drive-strength = <2>; bias-disable; };
+        };
+        pex_pinctrl_battery_uart: pex_battery_uart {
+            mux    { pins = "gpio81", "gpio82"; function = "blsp_uart5"; };
+            config { pins = "gpio81", "gpio82"; drive-strength = <2>; bias-disable; };
+        };
+
+        /* GPIO emergency button + emergency LEDs */
+        pex_pinctrl_emergency_n: pex_emergency_n {
+            mux    { pins = "gpio49"; function = "gpio"; };
+            config { pins = "gpio49"; drive-strength = <2>; bias-disable; };
+        };
+        pex_pinctrl_emer_led_r_ctl: pex_emer_led_r_ctl {
+            mux    { pins = "gpio50"; function = "gpio"; };
+            config { pins = "gpio50"; drive-strength = <2>; bias-disable; output-high; };
+        };
+        pex_pinctrl_emer_led_g_ctl: pex_emer_led_g_ctl {
+            mux    { pins = "gpio51"; function = "gpio"; };
+            config { pins = "gpio51"; drive-strength = <2>; bias-disable; output-high; };
+        };
+
+        /* Chip reset lines */
+        pex_pinctrl_usb_hub_reset_n: pex_usb_hub_reset_n {
+            mux    { pins = "gpio2"; function = "gpio"; };
+            config { pins = "gpio2"; drive-strength = <2>; bias-disable; output-high; };
+        };
+        pex_pinctrl_eth_reset_n: pex_eth_reset_n {
+            mux    { pins = "gpio3"; function = "gpio"; };
+            config { pins = "gpio3"; drive-strength = <2>; bias-disable; output-high; };
+        };
+        pex_pinctrl_ft232r_reset_n: pex_ft232r_reset_n {
+            mux    { pins = "gpio48"; function = "gpio"; };
+            config { pins = "gpio48"; drive-strength = <2>; bias-disable; output-high; };
+        };
+
+        /* Modem lines */
+        pex_pinctrl_ec25_wakeup_in: pex_ec25_wakeup_in {
+            mux    { pins = "gpio25"; function = "gpio"; };
+            config { pins = "gpio25"; drive-strength = <2>; bias-disable; };
+        };
+        pex_pinctrl_ec25_disable_n: pex_ec25_disable_n {
+            mux    { pins = "gpio26"; function = "gpio"; };
+            config { pins = "gpio26"; drive-strength = <2>; bias-disable; };
+        };
+        pex_pinctrl_ec25_reset: pex_ec25_reset {
+            mux    { pins = "gpio27"; function = "gpio"; };
+            config { pins = "gpio27"; drive-strength = <2>; bias-disable; };
+        };
+        pex_pinctrl_ec25_pwrkey: pex_ec25_pwrkey {
+            mux    { pins = "gpio28"; function = "gpio"; };
+            config { pins = "gpio28"; drive-strength = <2>; bias-disable; };
+        };
+        pex_pinctrl_ec25_ap_ready: pex_ec25_ap_ready {
+            mux    { pins = "gpio52"; function = "gpio"; };
+            config { pins = "gpio52"; drive-strength = <2>; bias-disable; };
+       };
+    };
+};
+
+&soc {
+    /*
+        Documentation/devicetree/bindings/leds/leds-gpio.txt
+    */
+    gpio_leds {
+        compatible = "gpio-leds";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pex_pinctrl_emer_led_r_ctl &pex_pinctrl_emer_led_g_ctl>;
+
+        /*
+            /sys/devices/soc/soc:gpio_leds/leds/emergency_led_red/brightness
+        */
+        emergency_led_red {
+            gpios = <&tlmm 50 1>;
+            label = "emergency_led_red";
+            linux,default-trigger = "none";
+        };
+
+        /*
+            /sys/devices/soc/soc:gpio_leds/leds/emergency_led_green/brightness
+        */
+        emergency_led_green {
+            gpios = <&tlmm 51 1>;
+            label = "emergency_led_green";
+            linux,default-trigger = "none";
+        };
+    };
+
+    /*
+        Documentation/devicetree/bindings/gpio/gpio_keys.txt
+        This extends the node from apq8096-sbc.dtsi
+        (There can only be one instance of the gpio-keys node!)
+    */
+    gpio_keys {
+        compatible = "gpio-keys";
+        input-name = "gpio-keys";
+        pinctrl-names = "tlmm_gpio_key_active", "tlmm_gpio_key_suspend";
+        pinctrl-0 = <&pex_pinctrl_emergency_n>;
+        pinctrl-1 = <&pex_pinctrl_emergency_n>;
+
+        /*
+            Generate a "PROG1" key event on the "gpio-keys" input device
+        */
+        emergency_button { 
+            label = "emergency_button";
+            gpios = <&tlmm 49 1>;
+            linux,input-type = <1>; // EV_KEY
+            linux,code = <148>; // KEY_PROG1
+            gpio-key,wakeup; // Wakeup the device if it's sleeping
+            debounce-interval = <15>;
+        };
+    };
+};

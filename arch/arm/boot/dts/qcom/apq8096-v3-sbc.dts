@@ -10,12 +10,25 @@
  * GNU General Public License for more details.
  */
 
+/*
+    This is the root devicetree file used by the Inforce 6640 board
+    variant_id = 0x18
+    board_hw_subtype = 0x0
+    soc_rev -> 0x30001
+    pmic_rev[0] = 0x20009
+    pmic_rev[1] = 0x10013
+    pmic_rev[2] = 0x0
+    pmic_rev[3] = 0x0
+*/
 
 /dts-v1/;
 
 #include "apq8096-v3.dtsi"
 #include "msm-pmi8996.dtsi"
 #include "apq8096-sbc.dtsi"
+
+/* Include Pebble Expansion Board setup last so it can override anything */
+#include "ifc6640-pebble-expansion-board.dtsi"
 
 / {
 	model = "Qualcomm Technologies, Inc. APQ8096v3";
