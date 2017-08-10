@@ -691,3 +691,5 @@ CONFIG_USB_VIDEO_CLASS=y
 CONFIG_USB_VIDEO_CLASS_INPUT_EVDEV=y
 # AppOS: Support GPIO LEDs (For Pebble Expansion Board)
 CONFIG_LEDS_GPIO=y
+# AppOS: Support LAN9500 USB->Ethernet chip (For Pebble Expansion Board)
+CONFIG_USB_NET_SMSC95XX=y
