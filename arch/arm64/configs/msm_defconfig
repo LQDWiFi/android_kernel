@@ -691,3 +691,5 @@ CONFIG_USB_VIDEO_CLASS=y
 CONFIG_USB_VIDEO_CLASS_INPUT_EVDEV=y
 # AppOS: Support GPIO LEDs (For Pebble Expansion Board)
 CONFIG_LEDS_GPIO=y
+# AppOS: Support FTDI FT232 serial adapters (For Pebble Expansion Board)
+CONFIG_USB_SERIAL_FTDI_SIO=y
