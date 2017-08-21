@@ -1344,6 +1344,18 @@ static struct msm_hsl_port msm_hsl_uart_ports[] = {
 			.line = 2,
 		},
 	},
+	// AppOS modification
+	// The Pebble Expansion board adds three serial ports, and we require one for the debug UART
+	// So extend this array to be four elements big (Debug + Ticker1 + Ticker2 + Battery)
+	{
+		.uart = {
+			.iotype = UPIO_MEM,
+			.ops = &msm_hsl_uart_pops,
+			.flags = UPF_BOOT_AUTOCONF,
+			.fifosize = 64,
+			.line = 3,
+		},
+	},
 };
 
 #define UART_NR	ARRAY_SIZE(msm_hsl_uart_ports)
