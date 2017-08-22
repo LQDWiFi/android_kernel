@@ -170,4 +170,128 @@
             debounce-interval = <15>;
         };
     };
+
+    /*
+    UART hardware table
+    -------------------
+
+    Hardware | Clock domain | IRQ | Address    (Size)   | Comment
+    ---------|--------------|-----|---------------------|------------
+    BLSP1    | blsp1_uart1  | 107 | 0x0756F000 (0x1000) | pex_ticker1_uart
+    BLSP2    | blsp1_uart2  | 108 | 0x07570000 (0x1000) | uartblsp1dm1 (msm8996.dtsi)
+    BLSP3    | blsp1_uart3  | 109 | 0x07571000 (0x1000) | pex_ticker2_uart
+    BLSP4    | blsp1_uart4  | 110 | 0x07572000 (0x1000) |
+    BLSP5    | blsp1_uart5  | 111 | 0x07573000 (0x1000) | pex_battery_uart
+    BLSP6    | blsp1_uart6  | 112 | 0x07574000 (0x1000) |
+    ---------|--------------|-----|---------------------|
+    BLSP7    | blsp2_uart1  | 113 | 0x075AF000 (0x1000) |
+    BLSP8    | blsp2_uart2  | 114 | 0x075B0000 (0x1000) | uartblsp2dm1 (msm8996.dtsi) - Debug Console
+    BLSP9    | blsp2_uart3  | 115 | 0x075B1000 (0x1000) |
+    BLSP10   | blsp2_uart4  | 116 | 0x075B2000 (0x1000) |
+    BLSP11   | blsp2_uart5  | 117 | 0x075B3000 (0x1000) |
+    BLSP12   | blsp2_uart6  | 118 | 0x075B4000 (0x1000) | uart2 (msm8996.dtsi) - Bluetooth?
+    */
+
+    // "BLSP1"
+    pex_ticker1_uart: serial@0756f000 {
+        // Use the drivers/tty/serial/msm_serial_hs_lite.c driver
+        compatible = "qcom,msm-lsuart-v14";
+
+        // IO space for UART (see above table)
+        reg = <0x0756f000 0x1000>;
+
+        // Interrupt number for UART (see above table)
+        interrupts = <0 107 0>;
+
+        // Clock domains for UART (see above table)
+        clock-names = "core_clk", "iface_clk";
+        clocks = <&clock_gcc clk_gcc_blsp1_uart1_apps_clk>, <&clock_gcc clk_gcc_blsp1_ahb_clk>;
+
+        // Pin control setup
+        pinctrl-names = "default";
+        pinctrl-0 = <&pex_pinctrl_ticker1_uart>;
+
+        // GPIO setup only TXD and RXD (no RTS/CTS/etc)
+        qcom,config-gpio = <2>;
+        qcom,tx-gpio = <&tlmm 0 0>;
+        qcom,rx-gpio = <&tlmm 1 0>;
+        qcom,use-pm;
+
+        // Engage!
+        status = "ok";
+    };
+
+    // "BLSP3"
+    pex_ticker2_uart: serial@07571000 {
+        // Use the drivers/tty/serial/msm_serial_hs_lite.c driver
+        compatible = "qcom,msm-lsuart-v14";
+
+        // IO space for UART (see above table)
+        reg = <0x07571000 0x1000>;
+
+        // Interrupt number for UART (see above table)
+        interrupts = <0 109 0>;
+
+        // Clock domains for UART (see above table)
+        clock-names = "core_clk", "iface_clk";
+        clocks = <&clock_gcc clk_gcc_blsp1_uart3_apps_clk>, <&clock_gcc clk_gcc_blsp1_ahb_clk>;
+
+        // Pin control setup
+        pinctrl-names = "default";
+        pinctrl-0 = <&pex_pinctrl_ticker2_uart>;
+
+        // GPIO setup only TXD and RXD (no RTS/CTS/etc)
+        qcom,config-gpio = <2>;
+        qcom,tx-gpio = <&tlmm 45 0>;
+        qcom,rx-gpio = <&tlmm 46 0>;
+        qcom,use-pm;
+
+        // Engage!
+        status = "ok";
+    };
+
+    // BLSP5
+    pex_battery_uart: serial@07573000 {
+        // Use the drivers/tty/serial/msm_serial_hs_lite.c driver
+        compatible = "qcom,msm-lsuart-v14";
+
+        // IO space for UART (see above table)
+        reg = <0x07573000 0x1000>;
+
+        // Interrupt number for UART (see above table)
+        interrupts = <0 111 0>;
+
+        // Clock domains for UART (see above table)
+        clock-names = "core_clk", "iface_clk";
+        clocks = <&clock_gcc clk_gcc_blsp1_uart5_apps_clk>, <&clock_gcc clk_gcc_blsp1_ahb_clk>;
+
+        // Pin control setup
+        pinctrl-names = "default";
+        pinctrl-0 = <&pex_pinctrl_battery_uart>;
+
+        // GPIO setup only TXD and RXD (no RTS/CTS/etc)
+        qcom,config-gpio = <2>;
+        qcom,tx-gpio = <&tlmm 81 0>;
+        qcom,rx-gpio = <&tlmm 82 0>;
+        qcom,use-pm;
+
+        // Engage!
+        status = "ok";
+    };
+};
+
+// Disable ttyHSL2
+&uart2 {
+    status = "disabled";
+};
+
+/ {
+    aliases {
+        // Ensure ttyHSL1 is ticker1
+        serial1 = &pex_ticker1_uart;
+        // Ensure ttyHSL2 is ticker2
+        serial2 = &pex_ticker2_uart;
+        // Ensure ttyHSL3 is battery
+        serial3 = &pex_battery_uart;
+    };
 };
