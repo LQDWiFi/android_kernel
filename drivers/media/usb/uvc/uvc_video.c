@@ -1321,8 +1321,13 @@ static void uvc_video_complete(struct urb *urb)
 		break;
 
 	default:
-		uvc_printk(KERN_WARNING, "Non-zero status (%d) in video "
-			"completion handler.\n", urb->status);
+		if (urb->status == -EPROTO) {
+			uvc_printk(KERN_WARNING, "EPROTO status in video "
+				"completion handler.\n");
+		} else {
+			uvc_printk(KERN_WARNING, "Non-zero status (%d) in video "
+				"completion handler.\n", urb->status);
+		}
 
 	case -ENOENT:		/* usb_kill_urb() called. */
 		if (stream->frozen)

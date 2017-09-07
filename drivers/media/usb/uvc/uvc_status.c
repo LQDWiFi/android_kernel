@@ -124,8 +124,11 @@ static void uvc_status_complete(struct urb *urb)
 	case -ENOENT:		/* usb_kill_urb() called. */
 	case -ECONNRESET:	/* usb_unlink_urb() called. */
 	case -ESHUTDOWN:	/* The endpoint is being disabled. */
+		return;
 	case -EPROTO:		/* Device is disconnected (reported by some
 				 * host controller). */
+		uvc_printk(KERN_WARNING, "EPROTO status in status "
+			"completion handler.\n");
 		return;
 
 	default:
