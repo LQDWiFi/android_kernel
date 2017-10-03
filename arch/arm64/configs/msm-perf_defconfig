@@ -642,3 +642,5 @@ CONFIG_LEDS_GPIO=y
 CONFIG_USB_NET_SMSC95XX=y
 # AppOS: Support FTDI FT232 serial adapters (For Pebble Expansion Board)
 CONFIG_USB_SERIAL_FTDI_SIO=y
+# AppOS: Support for Ticker USB serial port emulation
+CONFIG_USB_ACM=y
