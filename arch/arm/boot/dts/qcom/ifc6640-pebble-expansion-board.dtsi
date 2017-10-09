@@ -18,11 +18,12 @@
     GPIO28: OUTPUT        EC25_PWRKEY
     GPIO45: BLSP3_UART_TX TICKER_2_TXD
     GPIO46: BLSP3_UART_RX TICKER_2_RXD
+    GPIO47: INPUT         BOARD_ID_0
     GPIO48: OUTPUT        FT232R_RESET_N
     GPIO49: INPUT         EMERGENCY_N    (Button)
     GPIO50: OUTPUT        EMER_LED_R_CTL (LED)
     GPIO51: OUTPUT        EMER_LED_G_CTL (LED)
-    GPIO52: OUTPUT        EC25_AP_READY
+    GPIO52: INPUT         BOARD_ID_1
     GPIO81: BLSP5_UART_TX BATTERY_TXD
     GPIO82: BLSP5_UART_RX BATTERY_RXD
 */
@@ -111,10 +112,16 @@
             mux    { pins = "gpio28"; function = "gpio"; };
             config { pins = "gpio28"; drive-strength = <2>; bias-disable; };
         };
-        pex_pinctrl_ec25_ap_ready: pex_ec25_ap_ready {
+
+        /* Board ID inputs */
+        pex_pinctrl_board_id_0: pex_board_id_0 {
+            mux    { pins = "gpio47"; function = "gpio"; };
+            config { pins = "gpio47"; drive-strength = <2>; bias-pull-down; };
+        };
+        pex_pinctrl_board_id_1: pex_board_id_1 {
             mux    { pins = "gpio52"; function = "gpio"; };
-            config { pins = "gpio52"; drive-strength = <2>; bias-disable; };
-       };
+            config { pins = "gpio52"; drive-strength = <2>; bias-pull-down; };
+        };
     };
 };
 
