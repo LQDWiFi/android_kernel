@@ -95,24 +95,6 @@
             config { pins = "gpio48"; drive-strength = <2>; bias-disable; output-high; };
         };
 
-        /* Modem lines */
-        pex_pinctrl_ec25_wakeup_in: pex_ec25_wakeup_in {
-            mux    { pins = "gpio25"; function = "gpio"; };
-            config { pins = "gpio25"; drive-strength = <2>; bias-disable; };
-        };
-        pex_pinctrl_ec25_disable_n: pex_ec25_disable_n {
-            mux    { pins = "gpio26"; function = "gpio"; };
-            config { pins = "gpio26"; drive-strength = <2>; bias-disable; };
-        };
-        pex_pinctrl_ec25_reset: pex_ec25_reset {
-            mux    { pins = "gpio27"; function = "gpio"; };
-            config { pins = "gpio27"; drive-strength = <2>; bias-disable; };
-        };
-        pex_pinctrl_ec25_pwrkey: pex_ec25_pwrkey {
-            mux    { pins = "gpio28"; function = "gpio"; };
-            config { pins = "gpio28"; drive-strength = <2>; bias-disable; };
-        };
-
         /* Board ID inputs */
         pex_pinctrl_board_id_0: pex_board_id_0 {
             mux    { pins = "gpio47"; function = "gpio"; };
