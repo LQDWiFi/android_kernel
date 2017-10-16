@@ -6,26 +6,34 @@
 */
 
 /*
-    GPIO MAP
-    --------
-    GPIO0 : BLSP1_UART_TX TICKER_1_TXD
-    GPIO1 : BLSP1_UART_RX TICKER_1_RXD
-    GPIO2 : OUTPUT        USB_HUB_RESET_N
-    GPIO3 : OUTPUT        ETH_RESET_N
-    GPIO25: OUTPUT        EC25_WAKEUP_IN
-    GPIO26: OUTPUT        EC25_DISABLE_N
-    GPIO27: OUTPUT        EC25_RESET
-    GPIO28: OUTPUT        EC25_PWRKEY
-    GPIO45: BLSP3_UART_TX TICKER_2_TXD
-    GPIO46: BLSP3_UART_RX TICKER_2_RXD
-    GPIO47: INPUT         BOARD_ID_0
-    GPIO48: OUTPUT        FT232R_RESET_N
-    GPIO49: INPUT         EMERGENCY_N    (Button)
-    GPIO50: OUTPUT        EMER_LED_R_CTL (LED)
-    GPIO51: OUTPUT        EMER_LED_G_CTL (LED)
-    GPIO52: INPUT         BOARD_ID_1
-    GPIO81: BLSP5_UART_TX BATTERY_TXD
-    GPIO82: BLSP5_UART_RX BATTERY_RXD
+    GPIO   | DT function     | PEB Rev C            | PEB Rev B            | PEB Rev A (not supported)
+    -------|-----------------|----------------------|----------------------|--------------------------
+    GPIO0  | BLSP1_UART_TX   | out DISPLAY_UART_TXD | out TICKER_1_TXD     | out TICKER_1_TXD     |
+    GPIO1  | BLSP1_UART_RX   | in  DISPLAY_UART_RXD | in  TICKER_1_RXD     | in  TICKER_1_RXD     |
+    GPIO2  | GPIO OUT        | out USB_HUB_RESET_N  | out USB_HUB_RESET_N  | out USB_HUB_RESET_N  |
+    GPIO3  | GPIO OUT        | out ETH_RESET_N      | out ETH_RESET_N      | out ETH_RESET_N      |
+    GPIO25 |                 |                      |                      | out EC25_WAKEUP_IN   |
+    GPIO26 |                 | out USB2_PRT_CTL     |                      | out EC25_DISABLE_N   |
+    GPIO27 |                 | in  USB2_PRT_FLT_N   |                      | out EC25_RESET       |
+    GPIO28 |                 |                      |                      | out EC25_PWRKEY      |
+    GPIO45 | BLSP3_UART_TX   | out SPARE_UART_TXD   | out TICKER_2_TXD     | out TICKER_2_TXD     |
+    GPIO46 | BLSP3_UART_RX   | in  SPARE_UART2_RXD  | in  TICKER_2_RXD     | in  TICKER_2_RXD     |
+    GPIO47 | GPIO IN         | in  BOARD_ID_0       | in  BOARD_ID_0       | in  BOARD_ID_0       |
+    GPIO48 | GPIO OUT        |                      | out FT232R_RESET_N   | out FT232R_RESET_N   |
+    GPIO49 | GPIO_KEYS       | in  EMERGENCY_N      | in  EMERGENCY_N      | in  EMERGENCY_N      |
+    GPIO50 | GPIO_LEDS RED   | out EMER_LED_R_CTL   | out EMER_LED_R_CTL   | out EMER_LED_R_CTL   |
+    GPIO51 | GPIO_LEDS GREEN | out EMER_LED_G_CTL   | out EMER_LED_G_CTL   | out EMER_LED_G_CTL   |
+    GPIO52 | GPIO IN         | in  BOARD_ID_1       | in  BOARD_ID_1       | in  EC25_AP_READY    |
+    GPIO81 | BLSP5_UART_TX   | out BATTERY_TXD      | out BATTERY_TXD      | out BATTERY_TXD      |
+    GPIO82 | BLSP5_UART_RX   | in  BATTERY_RXD      | in  BATTERY_RXD      | in  BATTERY_RXD      |
+    GPIO83 |                 | io  TEMP_I2C_SDA     | io  TEMP_I2C_SDA     |                      |
+    GPIO84 |                 | out TEMP_I2C_SCL     | out TEMP_I2C_SCL     |                      |
+
+
+    Board | ID[1:0]
+    ------|--------
+    Rev B | 10
+    Rev C | 01
 */
 
 /*
@@ -150,6 +158,7 @@
         /*
             Generate a "PROG1" key event on the "gpio-keys" input device
         */
+        emergency_button {
             label = "emergency_button";
             gpios = <&tlmm 49 1>;
             linux,input-type = <1>; // EV_KEY
