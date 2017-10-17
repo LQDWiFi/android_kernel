@@ -6,25 +6,34 @@
 */
 
 /*
-    GPIO MAP
-    --------
-    GPIO0 : BLSP1_UART_TX TICKER_1_TXD
-    GPIO1 : BLSP1_UART_RX TICKER_1_RXD
-    GPIO2 : OUTPUT        USB_HUB_RESET_N
-    GPIO3 : OUTPUT        ETH_RESET_N
-    GPIO25: OUTPUT        EC25_WAKEUP_IN
-    GPIO26: OUTPUT        EC25_DISABLE_N
-    GPIO27: OUTPUT        EC25_RESET
-    GPIO28: OUTPUT        EC25_PWRKEY
-    GPIO45: BLSP3_UART_TX TICKER_2_TXD
-    GPIO46: BLSP3_UART_RX TICKER_2_RXD
-    GPIO48: OUTPUT        FT232R_RESET_N
-    GPIO49: INPUT         EMERGENCY_N    (Button)
-    GPIO50: OUTPUT        EMER_LED_R_CTL (LED)
-    GPIO51: OUTPUT        EMER_LED_G_CTL (LED)
-    GPIO52: OUTPUT        EC25_AP_READY
-    GPIO81: BLSP5_UART_TX BATTERY_TXD
-    GPIO82: BLSP5_UART_RX BATTERY_RXD
+    GPIO   | DT function     | PEB Rev C            | PEB Rev B            | PEB Rev A (not supported)
+    -------|-----------------|----------------------|----------------------|--------------------------
+    GPIO0  | BLSP1_UART_TX   | out DISPLAY_UART_TXD | out TICKER_1_TXD     | out TICKER_1_TXD     |
+    GPIO1  | BLSP1_UART_RX   | in  DISPLAY_UART_RXD | in  TICKER_1_RXD     | in  TICKER_1_RXD     |
+    GPIO2  | GPIO OUT        | out USB_HUB_RESET_N  | out USB_HUB_RESET_N  | out USB_HUB_RESET_N  |
+    GPIO3  | GPIO OUT        | out ETH_RESET_N      | out ETH_RESET_N      | out ETH_RESET_N      |
+    GPIO25 |                 |                      |                      | out EC25_WAKEUP_IN   |
+    GPIO26 |                 | out USB2_PRT_CTL     |                      | out EC25_DISABLE_N   |
+    GPIO27 |                 | in  USB2_PRT_FLT_N   |                      | out EC25_RESET       |
+    GPIO28 |                 |                      |                      | out EC25_PWRKEY      |
+    GPIO45 | BLSP3_UART_TX   | out SPARE_UART_TXD   | out TICKER_2_TXD     | out TICKER_2_TXD     |
+    GPIO46 | BLSP3_UART_RX   | in  SPARE_UART2_RXD  | in  TICKER_2_RXD     | in  TICKER_2_RXD     |
+    GPIO47 | GPIO IN         | in  BOARD_ID_0       | in  BOARD_ID_0       | in  BOARD_ID_0       |
+    GPIO48 | GPIO OUT        |                      | out FT232R_RESET_N   | out FT232R_RESET_N   |
+    GPIO49 | GPIO_KEYS       | in  EMERGENCY_N      | in  EMERGENCY_N      | in  EMERGENCY_N      |
+    GPIO50 | GPIO_LEDS RED   | out EMER_LED_R_CTL   | out EMER_LED_R_CTL   | out EMER_LED_R_CTL   |
+    GPIO51 | GPIO_LEDS GREEN | out EMER_LED_G_CTL   | out EMER_LED_G_CTL   | out EMER_LED_G_CTL   |
+    GPIO52 | GPIO IN         | in  BOARD_ID_1       | in  BOARD_ID_1       | in  EC25_AP_READY    |
+    GPIO81 | BLSP5_UART_TX   | out BATTERY_TXD      | out BATTERY_TXD      | out BATTERY_TXD      |
+    GPIO82 | BLSP5_UART_RX   | in  BATTERY_RXD      | in  BATTERY_RXD      | in  BATTERY_RXD      |
+    GPIO83 |                 | io  TEMP_I2C_SDA     | io  TEMP_I2C_SDA     |                      |
+    GPIO84 |                 | out TEMP_I2C_SCL     | out TEMP_I2C_SCL     |                      |
+
+
+    Board | ID[1:0]
+    ------|--------
+    Rev B | 10
+    Rev C | 01
 */
 
 /*
@@ -53,15 +62,15 @@
 &tlmm {
     pebble_expansion_board: pebble_expansion_board {
         /* UARTs */
-        pex_pinctrl_ticker1_uart: pex_ticker1_uart {
+        pex_pinctrl_blsp_uart1: pex_pinctrl_blsp_uart1 {
             mux    { pins = "gpio0", "gpio1"; function = "blsp_uart1"; };
             config { pins = "gpio0", "gpio1"; drive-strength = <2>; bias-disable; };
         };
-        pex_pinctrl_ticker2_uart: pex_ticker2_uart {
+        pex_pinctrl_blsp_uart3: pex_pinctrl_blsp_uart3 {
             mux    { pins = "gpio45", "gpio46"; function = "blsp_uart3"; };
             config { pins = "gpio45", "gpio46"; drive-strength = <2>; bias-disable; };
         };
-        pex_pinctrl_battery_uart: pex_battery_uart {
+        pex_pinctrl_blsp_uart5: pex_pinctrl_blsp_uart5 {
             mux    { pins = "gpio81", "gpio82"; function = "blsp_uart5"; };
             config { pins = "gpio81", "gpio82"; drive-strength = <2>; bias-disable; };
         };
@@ -94,27 +103,15 @@
             config { pins = "gpio48"; drive-strength = <2>; bias-disable; output-high; };
         };
 
-        /* Modem lines */
-        pex_pinctrl_ec25_wakeup_in: pex_ec25_wakeup_in {
-            mux    { pins = "gpio25"; function = "gpio"; };
-            config { pins = "gpio25"; drive-strength = <2>; bias-disable; };
+        /* Board ID inputs */
+        pex_pinctrl_board_id_0: pex_board_id_0 {
+            mux    { pins = "gpio47"; function = "gpio"; };
+            config { pins = "gpio47"; drive-strength = <2>; bias-pull-down; };
         };
-        pex_pinctrl_ec25_disable_n: pex_ec25_disable_n {
-            mux    { pins = "gpio26"; function = "gpio"; };
-            config { pins = "gpio26"; drive-strength = <2>; bias-disable; };
-        };
-        pex_pinctrl_ec25_reset: pex_ec25_reset {
-            mux    { pins = "gpio27"; function = "gpio"; };
-            config { pins = "gpio27"; drive-strength = <2>; bias-disable; };
-        };
-        pex_pinctrl_ec25_pwrkey: pex_ec25_pwrkey {
-            mux    { pins = "gpio28"; function = "gpio"; };
-            config { pins = "gpio28"; drive-strength = <2>; bias-disable; };
-        };
-        pex_pinctrl_ec25_ap_ready: pex_ec25_ap_ready {
+        pex_pinctrl_board_id_1: pex_board_id_1 {
             mux    { pins = "gpio52"; function = "gpio"; };
-            config { pins = "gpio52"; drive-strength = <2>; bias-disable; };
-       };
+            config { pins = "gpio52"; drive-strength = <2>; bias-pull-down; };
+        };
     };
 };
 
@@ -161,7 +158,7 @@
         /*
             Generate a "PROG1" key event on the "gpio-keys" input device
         */
-        emergency_button { 
+        emergency_button {
             label = "emergency_button";
             gpios = <&tlmm 49 1>;
             linux,input-type = <1>; // EV_KEY
@@ -177,11 +174,11 @@
 
     Hardware | Clock domain | IRQ | Address    (Size)   | Comment
     ---------|--------------|-----|---------------------|------------
-    BLSP1    | blsp1_uart1  | 107 | 0x0756F000 (0x1000) | pex_ticker1_uart
+    BLSP1    | blsp1_uart1  | 107 | 0x0756F000 (0x1000) | pex_blsp_uart1
     BLSP2    | blsp1_uart2  | 108 | 0x07570000 (0x1000) | uartblsp1dm1 (msm8996.dtsi)
-    BLSP3    | blsp1_uart3  | 109 | 0x07571000 (0x1000) | pex_ticker2_uart
+    BLSP3    | blsp1_uart3  | 109 | 0x07571000 (0x1000) | pex_blsp_uart3
     BLSP4    | blsp1_uart4  | 110 | 0x07572000 (0x1000) |
-    BLSP5    | blsp1_uart5  | 111 | 0x07573000 (0x1000) | pex_battery_uart
+    BLSP5    | blsp1_uart5  | 111 | 0x07573000 (0x1000) | pex_blsp_uart5
     BLSP6    | blsp1_uart6  | 112 | 0x07574000 (0x1000) |
     ---------|--------------|-----|---------------------|
     BLSP7    | blsp2_uart1  | 113 | 0x075AF000 (0x1000) |
@@ -193,7 +190,7 @@
     */
 
     // "BLSP1"
-    pex_ticker1_uart: serial@0756f000 {
+    pex_blsp_uart1: serial@0756f000 {
         // Use the drivers/tty/serial/msm_serial_hs_lite.c driver
         compatible = "qcom,msm-lsuart-v14";
 
@@ -209,7 +206,7 @@
 
         // Pin control setup
         pinctrl-names = "default";
-        pinctrl-0 = <&pex_pinctrl_ticker1_uart>;
+        pinctrl-0 = <&pex_pinctrl_blsp_uart1>;
 
         // GPIO setup only TXD and RXD (no RTS/CTS/etc)
         qcom,config-gpio = <2>;
@@ -222,7 +219,7 @@
     };
 
     // "BLSP3"
-    pex_ticker2_uart: serial@07571000 {
+    pex_blsp_uart3: serial@07571000 {
         // Use the drivers/tty/serial/msm_serial_hs_lite.c driver
         compatible = "qcom,msm-lsuart-v14";
 
@@ -238,7 +235,7 @@
 
         // Pin control setup
         pinctrl-names = "default";
-        pinctrl-0 = <&pex_pinctrl_ticker2_uart>;
+        pinctrl-0 = <&pex_pinctrl_blsp_uart3>;
 
         // GPIO setup only TXD and RXD (no RTS/CTS/etc)
         qcom,config-gpio = <2>;
@@ -251,7 +248,7 @@
     };
 
     // BLSP5
-    pex_battery_uart: serial@07573000 {
+    pex_blsp_uart5: serial@07573000 {
         // Use the drivers/tty/serial/msm_serial_hs_lite.c driver
         compatible = "qcom,msm-lsuart-v14";
 
@@ -267,7 +264,7 @@
 
         // Pin control setup
         pinctrl-names = "default";
-        pinctrl-0 = <&pex_pinctrl_battery_uart>;
+        pinctrl-0 = <&pex_pinctrl_blsp_uart5>;
 
         // GPIO setup only TXD and RXD (no RTS/CTS/etc)
         qcom,config-gpio = <2>;
@@ -287,11 +284,9 @@
 
 / {
     aliases {
-        // Ensure ttyHSL1 is ticker1
-        serial1 = &pex_ticker1_uart;
-        // Ensure ttyHSL2 is ticker2
-        serial2 = &pex_ticker2_uart;
-        // Ensure ttyHSL3 is battery
-        serial3 = &pex_battery_uart;
+        // Ensure device node numbering is consistent
+        serial1 = &pex_blsp_uart1;
+        serial2 = &pex_blsp_uart3;
+        serial3 = &pex_blsp_uart5;
     };
 };
