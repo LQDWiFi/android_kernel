@@ -47,6 +47,13 @@ ifeq ($(strip $(KERNEL_GCC_NOANDROID_CHK)),0)
 KERNEL_CFLAGS := KCFLAGS=-mno-android
 endif
 
+ifeq ($(HOST_OS),darwin)
+DARWIN_GETTEXT_PREFIX := $(shell brew --prefix gettext)
+
+KERNEL_CFLAGS += HOST_EXTRACFLAGS="-I$(PWD)/kernel/darwin_include -I$(PWD)/kernel/security/selinux/include -I$(DARWIN_GETTEXT_PREFIX)/include"
+KERNEL_CFLAGS += HOSTLDFLAGS="-L$(DARWIN_GETTEXT_PREFIX)/lib -lintl"
+endif
+
 KERNEL_OUT := $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ
 KERNEL_CONFIG := $(KERNEL_OUT)/.config
 
