@@ -348,6 +348,19 @@
 
         // Engage!
         status = "ok";
+
+        pex_temp_sensor@48 {
+            // Use drivers/hwmon/lm75.c driver
+            // See Documentation/hwmon/lm75
+            compatible ="ti,tmp75";
+
+            // Device is strapped to A0=A1=A2=GND
+            // This assigns it address 0b1001000 (0x48)
+            reg = <0x48>;   //Slave Address
+
+            // Engage!
+            status = "ok";
+        };
     };
 };
 
