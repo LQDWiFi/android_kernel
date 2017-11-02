@@ -75,6 +75,12 @@
             config { pins = "gpio81", "gpio82"; drive-strength = <2>; bias-disable; };
         };
 
+        /* I2C busses */
+        pex_pinctrl_blsp_i2c5: pex_pinctrl_blsp_i2c5 {
+            mux    { pins = "gpio83", "gpio84"; function = "blsp_i2c5"; };
+            config { pins = "gpio83", "gpio84"; drive-strength = <2>; bias-disable; };
+        };
+
         /* GPIO emergency button + emergency LEDs */
         pex_pinctrl_emergency_n: pex_emergency_n {
             mux    { pins = "gpio49"; function = "gpio"; };
@@ -275,6 +281,74 @@
         // Engage!
         status = "ok";
     };
+
+
+    /*
+    QUP hardware table
+    -------------------
+                                                        | BAM Pipe  |
+    Hardware | Clock domain | IRQ | Address    (Size)   | TX  | RX  | Comment
+    ---------|--------------|-----|---------------------|-----|-----|
+    BLSP1    | blsp1_qup1   | 95  | 0x7575000 (0x1000)  | 12  | 13  |
+    BLSP2    | blsp1_qup2   | 96  | 0x7576000 (0x1000)  | 14  | 15  |
+    BLSP3    | blsp1_qup3   | 97  | 0x7577000 (0x1000)  | 16  | 17  |
+    BLSP4    | blsp1_qup4   | 98  | 0x7578000 (0x1000)  | 18  | 19  |
+    BLSP5    | blsp1_qup5   | 99  | 0x7579000 (0x1000)  | 20  | 21  | pex_blsp_i2c_5 (temperature sensor)
+    BLSP6    | blsp1_qup6   | 100 | 0x757A000 (0x1000)  | 22  | 23  |
+    ---------|--------------|-----|---------------------|-----|-----|
+    BLSP7    | blsp2_qup1   | 101 | 0x75B5000 (0x1000)  | 12  | 13  |
+    BLSP8    | blsp2_qup2   | 102 | 0x75B6000 (0x1000)  | 14  | 15  |
+    BLSP9    | blsp2_qup3   | 103 | 0x75B7000 (0x1000)  | 16  | 17  |
+    BLSP10   | blsp2_qup4   | 104 | 0x75B8000 (0x1000)  | 18  | 19  |
+    BLSP11   | blsp2_qup5   | 105 | 0x75B9000 (0x1000)  | 20  | 21  |
+    BLSP12   | blsp2_qup6   | 106 | 0x75BA000 (0x1000)  | 22  | 23  |
+
+    See: Documentation//devicetree/bindings/i2c/i2c-msm-v2.txt
+    */
+    pex_blsp_i2c5: i2c@07579000 {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        // Use the drivers/i2c/busses/i2c-msm-v2.c driver
+        compatible = "qcom,i2c-msm-v2";
+
+        // IO space for QUP controller (see above table)
+        reg-names = "qup_phys_addr";
+        reg = <0x7579000 0x1000>;
+
+        // Interrupt number for QUP controller (see above table)
+        interrupt-names = "qup_irq";
+        interrupts = <0 99 0>;
+
+        // BAM DMA Pipes for QUP controller (see above table)
+        dma-names = "tx", "rx";
+        dmas = <&dma_blsp1 20 64 0x20000020 0x20>, <&dma_blsp1 21 32 0x20000020 0x20>;
+
+        // Clock domains for bus (see above table)
+        clock-names = "iface_clk", "core_clk";
+        clocks = <&clock_gcc clk_gcc_blsp1_ahb_clk>, <&clock_gcc clk_gcc_blsp1_qup5_i2c_apps_clk>;
+
+        // Pin control setup
+        pinctrl-names = "i2c_active", "i2c_sleep";
+        pinctrl-0 = <&pex_pinctrl_blsp_i2c5>;
+        pinctrl-1 = <&pex_pinctrl_blsp_i2c5>;
+
+        // Setup bus master to BLSP1 complex
+        qcom,master-id = <MSM_BUS_MASTER_BLSP_1>;
+
+        // Input clock (fixed at 19.2MHz)
+        qcom,clk-freq-in  = <19200000>;
+
+        // I2C clock, 100KHz standard speed mode (can also be 400KHz for full speed mode)
+        qcom,clk-freq-out = <100000>;
+
+        // Noise rejection levels can be between 0 and 3
+        qcom,noise-rjct-scl = <0>;
+        qcom,noise-rjct-sda = <0>;
+
+        // Engage!
+        status = "ok";
+    };
 };
 
 // Disable ttyHSL2
@@ -288,5 +362,6 @@
         serial1 = &pex_blsp_uart1;
         serial2 = &pex_blsp_uart3;
         serial3 = &pex_blsp_uart5;
+        i2c5 = &pex_blsp_i2c5;
     };
 };
