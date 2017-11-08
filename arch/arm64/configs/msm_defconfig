@@ -697,3 +697,5 @@ CONFIG_USB_NET_SMSC95XX=y
 CONFIG_USB_SERIAL_FTDI_SIO=y
 # AppOS: Support for Ticker USB serial port emulation
 CONFIG_USB_ACM=y
+# AppOS: Temperature sensor on PEX
+CONFIG_SENSORS_LM75=y
