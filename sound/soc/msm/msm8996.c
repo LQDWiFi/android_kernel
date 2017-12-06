@@ -196,6 +196,7 @@ static struct wcd_mbhc_config wcd_mbhc_cfg = {
 	.mbhc_micbias = MIC_BIAS_2,
 	.anc_micbias = MIC_BIAS_2,
 	.enable_anc_mic_detect = false,
+	.force_jack_type = SND_JACK_HEADSET, // Force jack to always be detected as a "headset"
 };
 
 static inline int param_is_mask(int p)

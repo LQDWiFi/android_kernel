@@ -256,6 +256,7 @@ struct wcd_mbhc_config {
 	int mbhc_micbias;
 	int anc_micbias;
 	bool enable_anc_mic_detect;
+	enum snd_jack_types force_jack_type;
 };
 
 struct wcd_mbhc_intr {
