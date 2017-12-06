@@ -1505,7 +1505,12 @@ static void wcd_mbhc_swch_irq_handler(struct wcd_mbhc *mbhc)
 		if (mbhc->mbhc_cb->enable_mb_source)
 			mbhc->mbhc_cb->enable_mb_source(codec, true);
 		mbhc->btn_press_intr = false;
-		wcd_mbhc_detect_plug_type(mbhc);
+		if (mbhc->mbhc_cfg->force_jack_type) {
+			pr_notice("%s: 3.5mm jack forced to type %d\n", __func__, mbhc->mbhc_cfg->force_jack_type);
+			wcd_mbhc_report_plug(mbhc, 1, mbhc->mbhc_cfg->force_jack_type);
+		} else {
+			wcd_mbhc_detect_plug_type(mbhc);
+		}
 	} else if ((mbhc->current_plug != MBHC_PLUG_TYPE_NONE)
 			&& !detection_type) {
 		/* Disable external voltage source to micbias if present */
